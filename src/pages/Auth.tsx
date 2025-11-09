@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase"; // Import Supabase client
 
 const countryCodes = [
   { code: "+1", country: "USA" },
@@ -74,18 +75,52 @@ const Auth = () => {
     },
   });
 
-  const onSignUpSubmit = (values: z.infer<typeof signUpFormSchema>) => {
-    console.log("Sign Up Submitted:", values);
-    toast.success("Account created successfully! Redirecting to proposal selection.");
-    signUpForm.reset();
-    navigate("/proposal-selection");
+  const onSignUpSubmit = async (values: z.infer<typeof signUpFormSchema>) => {
+    const { email, password, fullName, mobileCountryCode, mobileNumber } = values;
+    const fullPhoneNumber = `${mobileCountryCode}${mobileNumber}`;
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+          phone_number: fullPhoneNumber,
+        },
+      },
+    });
+
+    if (error) {
+      toast.error("Sign up failed: " + error.message);
+      console.error("Supabase Sign Up Error:", error);
+    } else if (data.user) {
+      toast.success("Account created successfully! Please check your email to verify your account. Redirecting to proposal selection.");
+      signUpForm.reset();
+      navigate("/proposal-selection");
+    } else if (data.session === null && data.user === null) {
+      // This case happens if email confirmation is required
+      toast.success("Account created! Please check your email to verify your account before signing in. Redirecting to proposal selection.");
+      signUpForm.reset();
+      navigate("/proposal-selection");
+    }
   };
 
-  const onSignInSubmit = (values: z.infer<typeof signInFormSchema>) => {
-    console.log("Sign In Submitted:", values);
-    toast.success("Logged in successfully! Redirecting to proposal selection.");
-    signInForm.reset();
-    navigate("/proposal-selection");
+  const onSignInSubmit = async (values: z.infer<typeof signInFormSchema>) => {
+    const { email, password } = values;
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      toast.error("Sign in failed: " + error.message);
+      console.error("Supabase Sign In Error:", error);
+    } else {
+      toast.success("Logged in successfully! Redirecting to proposal selection.");
+      signInForm.reset();
+      navigate("/proposal-selection");
+    }
   };
 
   const onAdminLoginSubmit = (values: z.infer<typeof adminLoginFormSchema>) => {
