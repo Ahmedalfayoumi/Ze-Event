@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Chrome, Apple } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -74,14 +73,6 @@ const Auth = () => {
     toast.success("Logged in successfully! Redirecting to proposal selection.");
     signInForm.reset();
     navigate("/proposal-selection");
-  };
-
-  const handleOAuthLogin = (provider: string) => {
-    // In a real application, this would initiate the OAuth flow.
-    // For this MVP, we'll simulate a successful login.
-    toast.success(`Logged in successfully with ${provider}!`);
-    console.log(`Simulating login with ${provider}`);
-    navigate("/client-info"); // Redirect to client info form after simulated login for missing details
   };
 
   return (
@@ -231,33 +222,6 @@ const Auth = () => {
             </TabsContent>
           </Tabs>
 
-          <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
-              </span>
-            </div>
-          </div>
-
-          <Button
-            variant="outline"
-            className="w-full py-6 text-lg flex items-center justify-center gap-3 shadow-sm hover:shadow-md transition-shadow"
-            onClick={() => handleOAuthLogin("Google")}
-          >
-            <Chrome className="h-6 w-6" />
-            Continue with Google
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full py-6 text-lg flex items-center justify-center gap-3 shadow-sm hover:shadow-md transition-shadow"
-            onClick={() => handleOAuthLogin("Apple")}
-          >
-            <Apple className="h-6 w-6" />
-            Continue with Apple
-          </Button>
           <p className="mt-4 text-center text-sm text-muted-foreground">
             By continuing, you agree to our <Link to="#" className="underline hover:text-primary">Privacy Policy</Link>.
           </p>
