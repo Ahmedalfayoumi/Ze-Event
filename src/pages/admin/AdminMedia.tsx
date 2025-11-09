@@ -126,9 +126,6 @@ const AdminMedia = () => {
           {selectedFile && (
             <p className="text-sm text-muted-foreground">Selected: {selectedFile.name}</p>
           )}
-          <p className="mt-4 text-sm text-red-500">
-            **Important:** This functionality requires a Supabase project with a Storage bucket named "{BUCKET_NAME}" for persistent file storage.
-          </p>
         </CardContent>
       </Card>
 
