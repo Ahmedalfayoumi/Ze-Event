@@ -15,9 +15,6 @@ const AdminDashboard = () => {
           <p className="text-muted-foreground">
             Use the sidebar to navigate through different administration sections.
           </p>
-          <p className="mt-4 text-sm text-gray-500">
-            **Note:** Many features here require a backend database and API for full functionality.
-          </p>
         </CardContent>
       </Card>
     </div>
