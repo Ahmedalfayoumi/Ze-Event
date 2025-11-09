@@ -11,6 +11,7 @@ import Gallery from "./pages/Gallery";
 import ContactUs from "./pages/ContactUs";
 import Auth from "./pages/Auth";
 import ProposalSelection from "./pages/ProposalSelection";
+import ControlPanel from "./pages/ControlPanel"; // Import the new ControlPanel component
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/proposal-selection" element={<ProposalSelection />} />
+            <Route path="/control-panel" element={<ControlPanel />} /> {/* New Control Panel route */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

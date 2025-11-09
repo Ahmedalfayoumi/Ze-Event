@@ -39,6 +39,11 @@ const signInFormSchema = z.object({
   password: z.string().min(1, { message: "Password is required." }),
 });
 
+const adminLoginFormSchema = z.object({
+  username: z.string().min(1, { message: "Username is required." }),
+  password: z.string().min(1, { message: "Password is required." }),
+});
+
 const Auth = () => {
   const navigate = useNavigate();
 
@@ -61,6 +66,14 @@ const Auth = () => {
     },
   });
 
+  const adminLoginForm = useForm<z.infer<typeof adminLoginFormSchema>>({
+    resolver: zodResolver(adminLoginFormSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  });
+
   const onSignUpSubmit = (values: z.infer<typeof signUpFormSchema>) => {
     console.log("Sign Up Submitted:", values);
     toast.success("Account created successfully! Redirecting to proposal selection.");
@@ -75,6 +88,16 @@ const Auth = () => {
     navigate("/proposal-selection");
   };
 
+  const onAdminLoginSubmit = (values: z.infer<typeof adminLoginFormSchema>) => {
+    if (values.username === "admin" && values.password === "admin") {
+      toast.success("Admin login successful! Redirecting to Control Panel.");
+      adminLoginForm.reset();
+      navigate("/control-panel");
+    } else {
+      toast.error("Invalid admin credentials.");
+    }
+  };
+
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
@@ -86,9 +109,10 @@ const Auth = () => {
         </CardHeader>
         <CardContent className="grid gap-4">
           <Tabs defaultValue="signup" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
               <TabsTrigger value="signin">Sign In</TabsTrigger>
+              <TabsTrigger value="admin">Control Panel</TabsTrigger>
             </TabsList>
             <TabsContent value="signup" className="mt-6">
               <Form {...signUpForm}>
@@ -216,6 +240,45 @@ const Auth = () => {
                     disabled={!signInForm.formState.isValid}
                   >
                     Sign In
+                  </Button>
+                </form>
+              </Form>
+            </TabsContent>
+            <TabsContent value="admin" className="mt-6">
+              <Form {...adminLoginForm}>
+                <form onSubmit={adminLoginForm.handleSubmit(onAdminLoginSubmit)} className="space-y-4">
+                  <FormField
+                    control={adminLoginForm.control}
+                    name="username"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Admin Username <span className="text-red-500">*</span></FormLabel>
+                        <FormControl>
+                          <Input placeholder="admin" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={adminLoginForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Admin Password <span className="text-red-500">*</span></FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="admin" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-rose-300 to-amber-200 text-primary-foreground hover:from-rose-400 hover:to-amber-300 shadow-lg py-6 text-lg"
+                    disabled={!adminLoginForm.formState.isValid}
+                  >
+                    Admin Login
                   </Button>
                 </form>
               </Form>
