@@ -11,7 +11,11 @@ import Gallery from "./pages/Gallery";
 import ContactUs from "./pages/ContactUs";
 import Auth from "./pages/Auth";
 import ProposalSelection from "./pages/ProposalSelection";
-import ControlPanel from "./pages/ControlPanel"; // Import the new ControlPanel component
+import ControlPanel from "./pages/ControlPanel";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminPages from "./pages/admin/AdminPages";
+import AdminMedia from "./pages/admin/AdminMedia";
+import AdminSettings from "./pages/admin/AdminSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,7 +35,13 @@ const App = () => (
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/proposal-selection" element={<ProposalSelection />} />
-            <Route path="/control-panel" element={<ControlPanel />} /> {/* New Control Panel route */}
+            <Route path="/control-panel" element={<ControlPanel />}>
+              <Route index element={<AdminDashboard />} /> {/* Default route for /control-panel */}
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="pages" element={<AdminPages />} />
+              <Route path="media" element={<AdminMedia />} />
+              <Route path="settings" element={<AdminSettings />} />
+            </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
