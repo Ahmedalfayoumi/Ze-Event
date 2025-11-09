@@ -13,7 +13,6 @@ import { toast } from "sonner";
 import { supabase } from "@/lib/supabase"; // Import Supabase client
 
 const passwordSchema = z.object({
-  currentPassword: z.string().min(1, { message: "Current password is required." }),
   newPassword: z.string().min(8, { message: "New password must be at least 8 characters." }),
   confirmNewPassword: z.string().min(8, { message: "Please confirm your new password." }),
 }).refine((data) => data.newPassword === data.confirmNewPassword, {
@@ -25,27 +24,30 @@ const AdminSettings = () => {
   const passwordForm = useForm<z.infer<typeof passwordSchema>>({
     resolver: zodResolver(passwordSchema),
     defaultValues: {
-      currentPassword: "",
       newPassword: "",
       confirmNewPassword: "",
     },
   });
 
   const onPasswordSubmit = async (values: z.infer<typeof passwordSchema>) => {
-    // In a real application, you would first verify the current password with Supabase Auth
-    // and then update the password. This is a simplified client-side example.
-    // For Supabase Auth, you would typically use `supabase.auth.updateUser({ password: newPassword })`
-    // after the user is authenticated.
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-    // Placeholder for client-side check (for demo purposes only)
-    if (values.currentPassword === "admin") { // Hardcoded check for the demo admin password
-      // Simulate a successful update
-      toast.success("Admin password updated (client-side only). For real changes, integrate with Supabase Auth.");
-      console.log("Password change attempt:", values);
-      passwordForm.reset();
+    if (userError || !user) {
+      toast.error("You must be logged in to change your password.");
+      console.error("Error getting user session:", userError);
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      password: values.newPassword,
+    });
+
+    if (error) {
+      toast.error("Failed to update password: " + error.message);
+      console.error("Error updating password:", error);
     } else {
-      passwordForm.setError("currentPassword", { message: "Incorrect current password." });
-      toast.error("Failed to update password: Incorrect current password.");
+      toast.success("Password updated successfully!");
+      passwordForm.reset();
     }
   };
 
@@ -53,12 +55,11 @@ const AdminSettings = () => {
   const themes = ["Light", "Dark", "System"];
   const [selectedTheme, setSelectedTheme] = React.useState("System");
 
-  const handleThemeChange = async (theme: string) => {
+  const handleThemeChange = (theme: string) => {
     setSelectedTheme(theme);
     // In a real application, you would save this preference to a Supabase table
     // associated with the admin user, or to a global settings table.
-    // Example: await supabase.from('admin_settings').update({ theme: theme }).eq('user_id', currentAdminId);
-    toast.info(`Theme set to ${theme} (client-side only). Requires backend for persistence.`);
+    toast.info(`Theme set to ${theme} (client-side only). Persistence requires backend integration.`);
   };
 
   return (
@@ -69,24 +70,11 @@ const AdminSettings = () => {
       <Card>
         <CardHeader>
           <CardTitle>Change Admin Password</CardTitle>
-          <CardDescription>Update the password for the administrator account.</CardDescription>
+          <CardDescription>Update the password for your administrator account.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...passwordForm}>
             <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4 max-w-md">
-              <FormField
-                control={passwordForm.control}
-                name="currentPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Current Password</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="Enter current password" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <FormField
                 control={passwordForm.control}
                 name="newPassword"
@@ -118,9 +106,6 @@ const AdminSettings = () => {
               </Button>
             </form>
           </Form>
-          <p className="mt-4 text-sm text-red-500">
-            **Important:** This password change is for demonstration only. A secure backend (like Supabase Auth) is required for actual password updates and secure authentication.
-          </p>
         </CardContent>
       </Card>
 
@@ -149,11 +134,11 @@ const AdminSettings = () => {
                 </SelectContent>
               </Select>
             </FormItem>
-            <Button disabled className="bg-gradient-to-r from-rose-300 to-amber-200 text-primary-foreground hover:from-rose-400 hover:to-amber-300 shadow-lg">
-              Apply Theme (Placeholder)
+            <Button className="bg-gradient-to-r from-rose-300 to-amber-200 text-primary-foreground hover:from-rose-400 hover:to-amber-300 shadow-lg">
+              Apply Theme
             </Button>
-            <p className="mt-4 text-sm text-red-500">
-              **Important:** Dynamic theme switching and persistence require backend integration (e.g., storing preference in Supabase) or a more advanced client-side state management.
+            <p className="mt-4 text-sm text-muted-foreground">
+              Dynamic theme switching and persistence require backend integration (e.g., storing preference in Supabase) or a more advanced client-side state management.
             </p>
           </div>
         </CardContent>
