@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase"; // Import Supabase client
 
 const passwordSchema = z.object({
   currentPassword: z.string().min(1, { message: "Current password is required." }),
@@ -30,11 +31,16 @@ const AdminSettings = () => {
     },
   });
 
-  const onPasswordSubmit = (values: z.infer<typeof passwordSchema>) => {
-    // This is a client-side check for demonstration purposes only.
-    // In a real application, this would involve an API call to a secure backend.
+  const onPasswordSubmit = async (values: z.infer<typeof passwordSchema>) => {
+    // In a real application, you would first verify the current password with Supabase Auth
+    // and then update the password. This is a simplified client-side example.
+    // For Supabase Auth, you would typically use `supabase.auth.updateUser({ password: newPassword })`
+    // after the user is authenticated.
+
+    // Placeholder for client-side check (for demo purposes only)
     if (values.currentPassword === "admin") { // Hardcoded check for the demo admin password
-      toast.success("Admin password updated (client-side only).");
+      // Simulate a successful update
+      toast.success("Admin password updated (client-side only). For real changes, integrate with Supabase Auth.");
       console.log("Password change attempt:", values);
       passwordForm.reset();
     } else {
@@ -46,6 +52,14 @@ const AdminSettings = () => {
   // Placeholder for theme settings
   const themes = ["Light", "Dark", "System"];
   const [selectedTheme, setSelectedTheme] = React.useState("System");
+
+  const handleThemeChange = async (theme: string) => {
+    setSelectedTheme(theme);
+    // In a real application, you would save this preference to a Supabase table
+    // associated with the admin user, or to a global settings table.
+    // Example: await supabase.from('admin_settings').update({ theme: theme }).eq('user_id', currentAdminId);
+    toast.info(`Theme set to ${theme} (client-side only). Requires backend for persistence.`);
+  };
 
   return (
     <div className="p-6 space-y-8">
@@ -105,7 +119,7 @@ const AdminSettings = () => {
             </form>
           </Form>
           <p className="mt-4 text-sm text-red-500">
-            **Important:** This password change is for demonstration only. A secure backend is required for actual password updates and secure authentication.
+            **Important:** This password change is for demonstration only. A secure backend (like Supabase Auth) is required for actual password updates and secure authentication.
           </p>
         </CardContent>
       </Card>
@@ -120,7 +134,7 @@ const AdminSettings = () => {
           <div className="space-y-4 max-w-md">
             <FormItem>
               <FormLabel>Select Theme</FormLabel>
-              <Select value={selectedTheme} onValueChange={setSelectedTheme}>
+              <Select value={selectedTheme} onValueChange={handleThemeChange}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a theme" />
@@ -139,7 +153,7 @@ const AdminSettings = () => {
               Apply Theme (Placeholder)
             </Button>
             <p className="mt-4 text-sm text-red-500">
-              **Important:** Dynamic theme switching and persistence require backend integration or a more advanced client-side state management.
+              **Important:** Dynamic theme switching and persistence require backend integration (e.g., storing preference in Supabase) or a more advanced client-side state management.
             </p>
           </div>
         </CardContent>
